@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="mk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Песничен детектив – III одделение</title>
+  <style>
+    :root{--navy:#173752;--blue:#2a78a6;--sky:#e8f3fa;--orange:#ef9224;--cream:#fff2e1;--green:#25825c;--mint:#e8f5ef;--red:#c43b3b;--paper:#fffdf8;--muted:#61717c}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,"Noto Sans",sans-serif;background:linear-gradient(145deg,#fff7d6,#e7f4fb);color:var(--navy);min-height:100vh}
+    button{font:inherit}.app{min-height:100vh;display:flex;flex-direction:column}.top{display:flex;align-items:center;gap:16px;padding:14px 24px;background:var(--navy);color:white;box-shadow:0 3px 12px #0002}
+    .brand{font-size:clamp(22px,3vw,34px);font-weight:800;flex:1}.turn{background:#ffffff1f;border:2px solid #ffffff60;border-radius:999px;padding:8px 16px;font-weight:700}.iconBtn{border:2px solid #ffffff80;background:#ffffff14;color:white;border-radius:14px;padding:8px 12px;cursor:pointer}
+    .progressWrap{height:12px;background:#d8e5ed}.progress{height:100%;width:0;background:linear-gradient(90deg,var(--orange),#ffd24a);transition:.35s}
+    main{flex:1;width:min(1120px,94vw);margin:0 auto;padding:28px 0 36px;display:flex;align-items:center;justify-content:center}.screen{width:100%;display:none}.screen.active{display:block}
+    .hero{background:var(--paper);border:3px solid #fff;box-shadow:0 18px 50px #17375220;border-radius:32px;padding:32px;text-align:center}.hero h1{font-size:clamp(38px,6vw,70px);margin:0 0 10px}.hero p{font-size:clamp(20px,2.6vw,30px);margin:10px auto;max-width:850px;color:var(--muted)}
+    .magnify{font-size:84px;filter:drop-shadow(0 6px 4px #0002)}.start{margin-top:22px;border:0;border-radius:18px;background:var(--green);color:white;font-weight:800;font-size:28px;padding:16px 34px;cursor:pointer;box-shadow:0 7px 0 #176345}.start:active{transform:translateY(4px);box-shadow:0 3px 0 #176345}
+    .guideGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:24px 0}.guide{border-radius:24px;padding:22px;min-height:250px;text-align:left;border:2px solid #d7e3ea}.guide:nth-child(1){background:var(--sky)}.guide:nth-child(2){background:var(--cream)}.guide:nth-child(3){background:var(--mint)}.guide h2{font-size:30px;margin:0 0 12px}.guide .big{font-size:44px;font-weight:900;color:var(--blue)}.verseLines{line-height:1.65;font-size:22px}.rhyme{font-size:30px;font-weight:800;color:var(--orange);text-align:center;margin-top:30px}
+    .card{background:var(--paper);border-radius:30px;padding:26px 32px;box-shadow:0 18px 50px #17375220;border:3px solid white}.tag{display:inline-block;background:var(--sky);color:var(--blue);font-weight:800;border-radius:999px;padding:7px 14px}.question{font-size:clamp(28px,4vw,46px);font-weight:800;text-align:center;margin:20px auto 14px;max-width:900px}.example{background:#f5f7f8;border-left:8px solid var(--orange);border-radius:16px;padding:18px 24px;margin:16px auto 24px;max-width:850px;font-size:clamp(22px,3vw,34px);line-height:1.45;white-space:pre-line;text-align:center;color:#17232b}
+    .answers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.answer{min-height:92px;border:3px solid #cfe0e9;background:white;border-radius:20px;padding:14px;font-size:clamp(21px,2.5vw,30px);font-weight:800;color:var(--navy);cursor:pointer;transition:.15s}.answer:hover,.answer:focus{transform:translateY(-3px);border-color:var(--blue);box-shadow:0 8px 18px #2a78a625}.answer.correct{background:var(--mint);border-color:var(--green);color:var(--green)}.answer.wrong{background:#fdeaea;border-color:var(--red);color:var(--red)}
+    .feedback{min-height:76px;margin-top:18px;border-radius:18px;padding:14px 18px;font-size:23px;font-weight:700;text-align:center;background:#f4f6f7;color:var(--muted)}.feedback.ok{background:var(--mint);color:var(--green)}.feedback.no{background:#fdeaea;color:var(--red)}.next{display:none;margin:14px auto 0;border:0;border-radius:16px;padding:13px 28px;background:var(--blue);color:white;font-size:23px;font-weight:800;cursor:pointer}.next.show{display:block}
+    .scoreRow{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:25px 0}.scoreBox{background:white;border:3px solid #d9e6ed;border-radius:22px;padding:16px 28px;min-width:180px;font-size:24px}.scoreBox strong{display:block;font-size:42px;color:var(--orange)}.small{font-size:18px;color:var(--muted)}
+    @media(max-width:760px){.guideGrid,.answers{grid-template-columns:1fr}.top{padding:10px 14px}.turn{font-size:14px}.hero,.card{padding:20px}.guide{min-height:0}.answer{min-height:68px}.example{font-size:22px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">🔎 Песничен детектив</div>
+    <div class="turn" id="turn">Ред е на: Ученик 1</div>
+    <button class="iconBtn" id="full" title="Цел екран">⛶ Цел екран</button>
+  </header>
+  <div class="progressWrap"><div class="progress" id="progress"></div></div>
+  <main>
+    <section class="screen active" id="welcome">
+      <div class="hero"><div class="magnify">🕵️‍♀️📜</div><h1>Откриј ја песната!</h1><p>Научи што се <b>стих</b>, <b>строфа</b> и <b>рима</b>, па реши 10 кратки задачи.</p><p class="small">Се менувате по еден одговор: 1 → 2 → 3.</p><button class="start" id="learn">Прво потсетник</button></div>
+    </section>
+    <section class="screen" id="guide">
+      <div class="card"><span class="tag">ПОТСЕТНИК</span><div class="guideGrid">
+        <div class="guide"><h2>СТИХ</h2><div class="big">1 ред</div><p class="verseLines">„Секогаш бил убав“ е еден стих.</p></div>
+        <div class="guide"><h2>СТРОФА</h2><div class="big">група стихови</div><p class="verseLines">Редовите се заедно, а од следната строфа се одделени со празно место.</p></div>
+        <div class="guide"><h2>РИМА</h2><div class="big">сличен крај</div><div class="rhyme">Ресен – есен<br>сон – тон</div></div>
+      </div><button class="start" id="begin">Почни ја играта</button></div>
+    </section>
+    <section class="screen" id="quiz">
+      <div class="card"><span class="tag" id="counter">ЗАДАЧА 1 ОД 10</span><div class="question" id="question"></div><div class="example" id="example"></div><div class="answers" id="answers"></div><div class="feedback" id="feedback">Избери одговор.</div><button class="next" id="next">Следна задача →</button></div>
+    </section>
+    <section class="screen" id="finish">
+      <div class="hero"><div class="magnify">🏆</div><h1>Детективската мисија заврши!</h1><p id="result"></p><div class="scoreRow" id="scores"></div><p><b>Запомни:</b> стих = еден ред · строфа = група стихови · рима = слично звучење на крајот</p><button class="start" id="again">Играј повторно</button></div>
+    </section>
+  </main>
+</div>
+<script>
+const tasks=[
+ {q:'Како се вика еден ред во песната?',e:'Секогаш бил убав',a:['строфа','стих','рима'],c:1,why:'Точно! Еден ред во песната е стих.'},
+ {q:'Како се вика група стихови?',e:'Секогаш бил убав\nи преубав Ресен,\нама, сепак, мислам –\nникогаш ко во есен!',a:['строфа','наслов','рима'],c:0,why:'Точно! Овие четири стиха заедно прават строфа.'},
+ {q:'Кој пар се римува?',e:'Слушај го крајот на зборовите.',a:['Ресен – есен','Ресен – град','убав – сон'],c:0,why:'Ресен и есен имаат исто звучење на крајот.'},
+ {q:'Колку стихови има оваа строфа?',e:'Тогаш цела Преспа\nне ја фаќа сон,\nсекој бере јаболка –\nповеќе од тон.',a:['2','3','4'],c:2,why:'Има четири реда, значи четири стиха.'},
+ {q:'Кој збор се римува со „сон“?',e:'сон – ?',a:['тон','сјај','езеро'],c:0,why:'Сон – тон е римуван пар.'},
+ {q:'Што ја одделува една строфа од друга?',e:'строфа 1\n\nстрофа 2',a:['празно место','запирка','голема буква'],c:0,why:'Строфите најчесто се одделени со празно место.'},
+ {q:'Кој римуван пар е од песната за Тетово?',e:'Побарај слично звучење на крајот.',a:['Шара – град','летово – Тетово','убав – капка'],c:1,why:'Летово – Тетово се римуваат.'},
+ {q:'Кој римуван пар е од песната за Гевгелија?',e:'Вардар тече наблизу,\nму го следам сјајот,\nпродолжува кон морето –\nтаму му е крајот!',a:['сјајот – крајот','Вардар – морето','наблизу – морето'],c:0,why:'Сјајот – крајот имаат сличен крај.'},
+ {q:'Што е рима?',e:'Ресен – есен',a:['еден ред','наслов на песна','слично звучење на крајот'],c:2,why:'Римата е исто или слично звучење на крајот од стиховите.'},
+ {q:'Што е песна?',e:'„Градовите македонски“',a:['литературен текст во стихови','само една реченица','список со зборови'],c:0,why:'Песната е литературен текст напишан во стихови.'}
+];
+let index=0,turn=0,locked=false; const scores=[0,0,0];
+const $=id=>document.getElementById(id);
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active')}
+function beep(good){try{const C=window.AudioContext||window.webkitAudioContext,a=new C(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=good?660:190;g.gain.value=.08;o.start();o.stop(a.currentTime+.16)}catch(e){}}
+function render(){locked=false;$('counter').textContent=`ЗАДАЧА ${index+1} ОД ${tasks.length}`;$('question').textContent=tasks[index].q;$('example').textContent=tasks[index].e;$('feedback').className='feedback';$('feedback').textContent='Избери одговор.';$('next').classList.remove('show');$('answers').innerHTML='';$('turn').textContent=`Ред е на: Ученик ${turn+1}`;$('progress').style.width=`${index/tasks.length*100}%`;
+ tasks[index].a.forEach((label,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=`${String.fromCharCode(65+i)}. ${label}`;b.onclick=()=>choose(i,b);$('answers').appendChild(b)});
+}
+function choose(choice,btn){if(locked)return;locked=true;const good=choice===tasks[index].c;document.querySelectorAll('.answer')[tasks[index].c].classList.add('correct');if(!good)btn.classList.add('wrong');if(good)scores[turn]++;$('feedback').className=`feedback ${good?'ok':'no'}`;$('feedback').textContent=(good?'✅ ':'🔁 ')+tasks[index].why+(good?'':' Прочитај го точниот одговор.');beep(good);$('next').classList.add('show')}
+function advance(){turn=(turn+1)%3;index++;if(index<tasks.length){render()}else{finish()}}
+function finish(){$('progress').style.width='100%';show('finish');$('turn').textContent='Браво, детективи!';const total=scores.reduce((a,b)=>a+b,0);$('result').textContent=`Заедно освоивте ${total} од ${tasks.length} поени.`;$('scores').innerHTML=scores.map((s,i)=>`<div class="scoreBox">Ученик ${i+1}<strong>${s}</strong><span class="small">точни одговори</span></div>`).join('')}
+$('learn').onclick=()=>show('guide');$('begin').onclick=()=>{show('quiz');render()};$('next').onclick=advance;$('again').onclick=()=>{index=0;turn=0;scores.fill(0);$('progress').style.width='0';show('guide')};
+$('full').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
+document.addEventListener('keydown',e=>{if($('quiz').classList.contains('active')){const n={'a':0,'A':0,'а':0,'А':0,'b':1,'B':1,'б':1,'Б':1,'c':2,'C':2,'в':2,'В':2}[e.key];if(n!==undefined&&!locked)document.querySelectorAll('.answer')[n].click();if((e.key==='Enter'||e.key===' ')&&locked)advance()}});
+</script>
+</body>
+</html>
