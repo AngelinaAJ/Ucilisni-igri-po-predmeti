@@ -21,10 +21,12 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh}
 h1{margin:16px 0 8px;font-size:clamp(34px,5vw,58px);line-height:1.02}
 .lead{margin:0 0 28px;color:var(--muted);font-size:clamp(17px,2vw,21px)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-.card{display:flex;align-items:center;gap:16px;min-height:128px;padding:24px;border-radius:22px;text-decoration:none;color:var(--ink);background:#ffe39b;border:1px solid rgba(23,63,117,.08);box-shadow:var(--shadow);transition:.16s}
+.card{display:flex;align-items:center;gap:16px;min-height:128px;padding:24px;border-radius:22px;text-decoration:none;color:var(--ink);border:1px solid rgba(23,63,117,.08);box-shadow:var(--shadow);transition:.16s}
+.card:nth-child(1){background:#ffe39b}
+.card:nth-child(2){background:#b9d7ff}
 .card:hover{transform:translateY(-3px)}
 .icon{display:grid;place-items:center;flex:0 0 58px;height:58px;border-radius:18px;background:rgba(255,255,255,.66);font-size:31px}
-.card-title{font-size:clamp(21px,2.4vw,28px);font-weight:850}
+.card-title{font-size:clamp(21px,2.4vw,28px);font-weight:850;line-height:1.08}
 .card-sub{margin-top:6px;color:#53667d;font-size:15px}
 .back{display:inline-flex;align-items:center;gap:8px;margin-bottom:8px;color:var(--ink);text-decoration:none;font-weight:750}
 @media(max-width:700px){.wrap{padding-top:28px}.grid{grid-template-columns:1fr}.card{min-height:104px;padding:20px}}
@@ -43,6 +45,14 @@ h1{margin:16px 0 8px;font-size:clamp(34px,5vw,58px);line-height:1.02}
       <div>
         <div class="card-title">Напиши го бројот со цифра</div>
         <div class="card-sub">IV одделение</div>
+      </div>
+    </a>
+
+    <a class="card" href="broen-lift.html">
+      <div class="icon">🛗</div>
+      <div>
+        <div class="card-title">Броен лифт</div>
+        <div class="card-sub">III одделение</div>
       </div>
     </a>
   </section>
