@@ -21,14 +21,12 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh}
 h1{margin:16px 0 8px;font-size:clamp(34px,5vw,58px);line-height:1.02}
 .lead{margin:0 0 28px;color:var(--muted);font-size:clamp(17px,2vw,21px)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-.card{display:flex;align-items:center;gap:16px;min-height:128px;padding:24px;border-radius:22px;text-decoration:none;color:var(--ink);background:var(--card-bg,#fff);border:1px solid rgba(23,63,117,.08);box-shadow:var(--shadow);transition:.16s}
+.card{display:flex;align-items:center;gap:16px;min-height:128px;padding:24px;border-radius:22px;text-decoration:none;color:var(--ink);background:#ffc6d2;border:1px solid rgba(23,63,117,.08);box-shadow:var(--shadow);transition:.16s}
 .card:hover{transform:translateY(-3px)}
 .icon{display:grid;place-items:center;flex:0 0 58px;height:58px;border-radius:18px;background:rgba(255,255,255,.66);font-size:31px}
 .card-title{font-size:clamp(21px,2.4vw,28px);font-weight:850}
 .card-sub{margin-top:6px;color:#53667d;font-size:15px}
 .back{display:inline-flex;align-items:center;gap:8px;margin-bottom:8px;color:var(--ink);text-decoration:none;font-weight:750}
-.empty{padding:34px;border:2px dashed rgba(23,63,117,.20);border-radius:22px;background:rgba(255,255,255,.5);color:var(--muted);font-size:18px;text-align:center}
-.footer{margin-top:24px;text-align:center;color:#738198;font-size:13px}
 @media(max-width:700px){.wrap{padding-top:28px}.grid{grid-template-columns:1fr}.card{min-height:104px;padding:20px}}
 </style>
 </head>
@@ -37,8 +35,17 @@ h1{margin:16px 0 8px;font-size:clamp(34px,5vw,58px);line-height:1.02}
   <a class="back" href="../">← Назад кон предметите</a>
   <div class="topline">🔤 Македонски јазик</div>
   <h1>Македонски јазик</h1>
-  <p class="lead">Тука ќе ги додаваме новите игри по овој предмет.</p>
-  <div class="empty">Сè уште нема додадени игри.</div>
+  <p class="lead">Избери игра.</p>
+
+  <section class="grid">
+    <a class="card" href="esenska-mapa.html">
+      <div class="icon">🍂</div>
+      <div>
+        <div class="card-title">Есенска мапа</div>
+        <div class="card-sub">Заедничка завршна активност</div>
+      </div>
+    </a>
+  </section>
 </main>
 </body>
 </html>

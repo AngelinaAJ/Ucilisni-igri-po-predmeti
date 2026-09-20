@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f59e0b" />
+  <title>Есенска мапа</title>
+  <style>
+    :root{
+      --bg:#fff8ed; --ink:#49321f; --soft:#fffdf8; --line:#ead8c3;
+      --orange:#f59e0b; --green:#65a30d; --blue:#3b82f6;
+      --purple:#a855f7; --red:#ef4444; --good:#16a34a; --bad:#dc2626;
+      --shadow:0 7px 18px rgba(90,54,20,.11);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden}
+    body{
+      color:var(--ink);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 8% 8%,#ffe7b4 0 6%,transparent 7%),
+        radial-gradient(circle at 92% 12%,#ffd5bd 0 5%,transparent 6%),
+        linear-gradient(180deg,#fff9ef,#fff3df);
+    }
+    .app{
+      width:100%; height:100dvh; max-width:1500px; margin:auto;
+      padding:8px 10px;
+      display:grid;
+      grid-template-rows:auto auto minmax(0,1fr) auto;
+      gap:6px;
+    }
+    header{
+      min-height:58px;
+      display:flex;gap:10px;align-items:center;justify-content:space-between;
+      background:rgba(255,255,255,.88);backdrop-filter:blur(6px);
+      border:2px solid #f3dfc6;border-radius:18px;padding:7px 12px;box-shadow:var(--shadow)
+    }
+    .title-wrap{display:flex;align-items:center;gap:9px;min-width:0}
+    .leaf{font-size:30px;line-height:1}
+    h1{margin:0;font-size:clamp(23px,2.8vw,38px);line-height:1;color:#9a4b14;white-space:nowrap}
+    .sub{font-weight:750;color:#7b5b3c;margin-top:2px;font-size:12px}
+    .controls{display:flex;gap:6px;flex-wrap:nowrap;justify-content:flex-end}
+    button{
+      border:0;border-radius:12px;padding:8px 10px;font-weight:850;font-size:13px;
+      cursor:pointer;box-shadow:0 3px 8px rgba(91,53,19,.10);transition:.12s transform
+    }
+    button:hover{transform:translateY(-1px)}
+    .btn-main{background:#9a4b14;color:white}
+    .btn-soft{background:#fff0d6;color:#7b4118}
+    .how{
+      margin:0;background:#fffefb;border:2px dashed #e9c28f;border-radius:14px;
+      padding:5px 10px;font-size:13px;font-weight:750;text-align:center;line-height:1.25
+    }
+    .game{
+      min-height:0;
+      display:grid;
+      grid-template-columns:minmax(0,3fr) minmax(255px,1fr);
+      gap:8px;
+    }
+    .map-wrap{min-width:0;min-height:0;position:relative}
+    .map{
+      height:100%;
+      min-height:0;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      grid-template-rows:1fr 1fr;
+      gap:8px;
+      position:relative;
+    }
+    .center{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      z-index:8;
+      width:150px;
+      background:linear-gradient(145deg,#f97316,#f59e0b);
+      color:white;border:5px solid #fff7e8;border-radius:999px;
+      text-align:center;padding:9px 10px;box-shadow:0 9px 18px rgba(194,94,16,.25);
+      font-size:22px;font-weight:950;letter-spacing:.2px;
+      pointer-events:none;
+    }
+    .zone{
+      min-height:0;border-radius:18px;padding:9px 10px;border:3px dashed var(--line);
+      background:rgba(255,255,255,.92);box-shadow:var(--shadow);position:relative;
+      transition:.12s;overflow:hidden;
+      display:flex;flex-direction:column;
+    }
+    .zone.over{transform:scale(1.006);border-style:solid;box-shadow:0 0 0 4px rgba(245,158,11,.13)}
+    .zone h2{
+      margin:0 0 2px;display:flex;align-items:center;gap:6px;
+      font-size:clamp(16px,1.55vw,22px);line-height:1.05
+    }
+    .zone .hint{font-size:11px;color:#7c6a58;font-weight:700;margin-bottom:5px}
+    .zone[data-cat="plodovi"]{border-color:#ef4444}
+    .zone[data-cat="priroda"]{border-color:#65a30d}
+    .zone[data-cat="lugje"]{border-color:#3b82f6}
+    .zone[data-cat="zborovi"]{border-color:#a855f7}
+    .placed{
+      display:flex;flex-wrap:wrap;gap:5px;min-height:0;align-content:flex-start;
+      overflow:hidden;
+    }
+
+    .bank{
+      min-height:0;height:100%;
+      background:#fff;border:2px solid #ecd7bd;border-radius:18px;
+      padding:8px;box-shadow:var(--shadow);
+      display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:5px;
+      overflow:hidden;
+    }
+    .bank-title{text-align:center;font-size:16px;font-weight:950;margin:0}
+    .cards{
+      min-height:0;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      grid-auto-rows:minmax(0,1fr);
+      gap:5px;
+      overflow:hidden;
+    }
+    .card{
+      min-width:0;min-height:0;
+      user-select:none;touch-action:none;background:#fffaf3;border:2px solid #e7cba7;
+      border-radius:11px;padding:4px 5px;font-weight:900;font-size:clamp(10px,.9vw,13px);
+      display:flex;align-items:center;justify-content:center;gap:4px;cursor:grab;
+      box-shadow:0 2px 6px rgba(81,48,19,.08);transition:.12s;position:relative;
+      text-align:center;line-height:1.05;
+    }
+    .card:hover{transform:translateY(-1px)}
+    .card:active{cursor:grabbing}
+    .card .ico{font-size:clamp(17px,1.5vw,22px);flex:0 0 auto}
+    .card.correct{border-color:#86efac;background:#f0fdf4}
+    .card.wrong{animation:shake .28s;border-color:#fca5a5;background:#fff1f2}
+    .speak{
+      margin-left:1px;padding:2px 3px;border-radius:6px;background:#fff;border:1px solid #ead6bc;
+      box-shadow:none;font-size:10px;line-height:1;flex:0 0 auto
+    }
+    .speak:hover{transform:none;background:#fff3dc}
+    .bank-mini{
+      font-size:10px;color:#80674e;text-align:center;font-weight:700;line-height:1.1
+    }
+
+    .bottom{
+      display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-height:34px
+    }
+    .feedback{
+      min-width:0;display:flex;align-items:center;gap:8px;
+      background:rgba(255,255,255,.86);border:2px solid #edd9bf;border-radius:13px;
+      padding:4px 8px;
+    }
+    .status{
+      flex:1;min-width:0;min-height:22px;display:flex;align-items:center;
+      font-weight:900;font-size:12px;border-radius:9px;padding:2px 6px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+    }
+    .status.good{background:#dcfce7;color:#166534}
+    .status.bad{background:#fee2e2;color:#991b1b}
+    .scorebar{display:flex;align-items:center;gap:7px;min-width:260px}
+    .progress{
+      flex:1;height:12px;background:#eadbc8;border-radius:999px;overflow:hidden;
+      border:1px solid #dec4a5
+    }
+    .progress > div{height:100%;width:0;background:linear-gradient(90deg,#84cc16,#22c55e);transition:.22s}
+    .score{font-size:12px;font-weight:950;white-space:nowrap}
+    .done{
+      display:none;text-align:center;background:#ecfccb;border:2px solid #84cc16;
+      border-radius:13px;padding:5px 10px;font-size:13px;font-weight:950;white-space:nowrap
+    }
+    .done.show{display:block}
+    .small{font-size:10px;color:#6d5a47;font-weight:650;margin-left:4px;display:inline}
+
+    @keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-4px)}}
+
+    /* When a card is already placed, keep it extra compact. */
+    .placed .card{
+      width:auto;min-height:28px;max-height:35px;
+      padding:3px 6px;font-size:11px;border-radius:9px;flex:0 1 auto
+    }
+    .placed .card .ico{font-size:17px}
+    .placed .card .speak{display:none}
+
+    /* Smaller landscape screens such as 1024×600. */
+    @media (max-height:650px) and (min-width:800px){
+      .app{padding:5px 7px;gap:4px}
+      header{min-height:48px;padding:5px 9px;border-radius:14px}
+      .leaf{font-size:25px}
+      h1{font-size:25px}
+      .sub{display:none}
+      button{padding:6px 8px;font-size:11px}
+      .how{padding:3px 8px;font-size:11px}
+      .game{gap:6px;grid-template-columns:minmax(0,3.2fr) minmax(235px,1fr)}
+      .map{gap:6px}
+      .zone{padding:6px 7px;border-radius:14px}
+      .zone h2{font-size:15px}
+      .zone .hint{font-size:9px;margin-bottom:3px}
+      .center{width:125px;padding:6px 8px;font-size:18px;border-width:4px}
+      .bank{padding:5px;border-radius:14px;gap:3px}
+      .bank-title{font-size:13px}
+      .cards{gap:3px}
+      .card{padding:2px 3px;font-size:9px;border-radius:8px}
+      .card .ico{font-size:15px}
+      .speak{font-size:9px;padding:1px 2px}
+      .bottom{min-height:28px}
+      .feedback{padding:2px 5px}
+      .status{font-size:10px;min-height:18px}
+      .scorebar{min-width:225px}
+      .done{font-size:11px;padding:3px 7px}
+      .small{font-size:9px}
+    }
+
+    /* Portrait/mobile: scrolling is permitted because a four-quadrant map cannot remain usable otherwise. */
+    @media (max-width:799px), (orientation:portrait){
+      html,body{height:auto;overflow:auto}
+      .app{height:auto;min-height:100vh;display:block;padding:8px}
+      header{align-items:flex-start;flex-direction:column}
+      .controls{width:100%;justify-content:flex-start;flex-wrap:wrap}
+      .how{margin:6px 0}
+      .game{display:block}
+      .map{height:auto;grid-template-columns:1fr;grid-template-rows:auto;gap:8px}
+      .center{position:static;transform:none;width:min(260px,90%);margin:4px auto}
+      .zone{min-height:145px;margin-bottom:8px}
+      .bank{height:auto;margin-top:8px}
+      .cards{display:flex;flex-wrap:wrap;overflow:visible}
+      .card{font-size:12px;padding:6px 7px}
+      .bottom{margin-top:7px;grid-template-columns:1fr}
+      .done{white-space:normal}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="title-wrap">
+        <div class="leaf">🍂</div>
+        <div>
+          <h1>ЕСЕНСКА МАПА</h1>
+          <div class="sub">Заедничка завршна активност</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn-soft" id="fullscreenBtn">⛶ Цел екран</button>
+        <button class="btn-soft" id="shuffleBtn">🔀 Измешај</button>
+        <button class="btn-main" id="resetBtn">↻ Почни одново</button>
+      </div>
+    </header>
+
+    <div class="how">
+      Избери картичка и стави ја на вистинското место. 🔊 Притисни го звучникот ако сакаш зборот да се прочита.
+    </div>
+    <section class="game">
+      <div class="map-wrap">
+        <section class="map" aria-label="Есенска мапа">
+          <div class="center">🍁 ЕСЕН 🍁</div>
+
+          <div class="zone" data-cat="plodovi">
+            <h2>🍎 ПЛОДОВИ</h2>
+            <div class="hint">Што ни дава есента?</div>
+            <div class="placed"></div>
+          </div>
+
+          <div class="zone" data-cat="priroda">
+            <h2>🍃 ПРИРОДА</h2>
+            <div class="hint">Што постепено се менува?</div>
+            <div class="placed"></div>
+          </div>
+
+          <div class="zone" data-cat="lugje">
+            <h2>🧺 ЛУЃЕТО НА ЕСЕН</h2>
+            <div class="hint">Што прават и што подготвуваат?</div>
+            <div class="placed"></div>
+          </div>
+
+          <div class="zone" data-cat="zborovi">
+            <h2>✨ КАКВА Е ЕСЕНТА?</h2>
+            <div class="hint">Избери зборови што ја опишуваат.</div>
+            <div class="placed"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="bank">
+        <div class="bank-title">КАРТИЧКИ</div>
+        <div class="cards" id="cards"></div>
+        <div class="bank-mini">Повлечи картичка или кликни картичка → поле.</div>
+      </section>
+    </section>
+
+    <section class="bottom">
+      <div class="feedback">
+        <div id="status" class="status" aria-live="polite">Избери картичка и стави ја во соодветното поле.</div>
+        <div class="scorebar">
+          <div class="progress" aria-label="Напредок"><div id="progress"></div></div>
+          <div class="score" id="score">0 / 12</div>
+        </div>
+      </div>
+
+      <div class="done" id="done">
+        🎉 БРАВО! ЈА НАПРАВИВТЕ ЕСЕНСКАТА МАПА! 🍂
+        <span class="small">Секој нека избере една картичка и нека каже реченица.</span>
+      </div>
+    </section>
+
+    </div>
+  </main>
+
+  <script>
+    const DATA = [
+      {t:"ЈАБОЛКА", i:"🍎", c:"plodovi"},
+      {t:"ГРОЗЈЕ", i:"🍇", c:"plodovi"},
+      {t:"КОСТЕНИ", i:"🌰", c:"plodovi"},
+      {t:"ЛИСЈАТА СЕ МЕНУВААТ", i:"🍂", c:"priroda"},
+      {t:"ДЕНОВИТЕ СЕ СКРАТУВААТ", i:"🌇", c:"priroda"},
+      {t:"ПТИЦИТЕ ЗАМИНУВААТ", i:"🐦", c:"priroda"},
+      {t:"БЕРАТ ПЛОДОВИ", i:"🧺", c:"lugje"},
+      {t:"ПРАВАТ ЗИМНИЦА", i:"🥫", c:"lugje"},
+      {t:"ГО СОБИРААТ РОДОТ", i:"🌾", c:"lugje"},
+      {t:"ПЛОДОРОДНА", i:"🌻", c:"zborovi"},
+      {t:"БОГАТА", i:"✨", c:"zborovi"},
+      {t:"ЗЛАТНА", i:"💛", c:"zborovi"}
+    ];
+
+    const cardsEl = document.getElementById("cards");
+    const statusEl = document.getElementById("status");
+    const scoreEl = document.getElementById("score");
+    const progressEl = document.getElementById("progress");
+    const doneEl = document.getElementById("done");
+    let placed = 0;
+    let activeCard = null;
+
+    function shuffle(a){
+      const arr=[...a];
+      for(let i=arr.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+      }
+      return arr;
+    }
+
+    function say(text){
+      if(!("speechSynthesis" in window)) return;
+      speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text.toLowerCase());
+      u.lang="mk-MK";
+      u.rate=.88;
+      speechSynthesis.speak(u);
+    }
+
+    function makeCard(item){
+      const d=document.createElement("div");
+      d.className="card";
+      d.draggable=true;
+      d.dataset.cat=item.c;
+      d.dataset.text=item.t;
+      d.innerHTML=`<span class="ico">${item.i}</span><span>${item.t}</span><button class="speak" type="button" aria-label="Прочитај ${item.t}">🔊</button>`;
+
+      d.addEventListener("dragstart", e=>{
+        activeCard=d;
+        e.dataTransfer.setData("text/plain", item.t);
+        e.dataTransfer.effectAllowed="move";
+      });
+      d.addEventListener("click", e=>{
+        if(e.target.closest(".speak")) return;
+        activeCard=d;
+        statusEl.className="status";
+        statusEl.textContent="Избрана е картичката „"+item.t+"“. Сега притисни на полето каде што припаѓа.";
+      });
+      d.querySelector(".speak").addEventListener("click", e=>{
+        e.stopPropagation(); say(item.t);
+      });
+
+      // Touch/pointer-friendly: select card, then tap zone
+      return d;
+    }
+
+    function renderBank(list=shuffle(DATA)){
+      cardsEl.innerHTML="";
+      list.forEach(x=>cardsEl.appendChild(makeCard(x)));
+    }
+
+    function update(){
+      scoreEl.textContent=`${placed} / ${DATA.length}`;
+      progressEl.style.width=(placed/DATA.length*100)+"%";
+      if(placed===DATA.length){
+        doneEl.classList.add("show");
+        statusEl.className="status good";
+        statusEl.textContent="Одлично! Сите картички се на вистинското место.";
+      } else {
+        doneEl.classList.remove("show");
+      }
+    }
+
+    function put(card, zone){
+      if(!card || card.classList.contains("correct")) return;
+      if(card.dataset.cat===zone.dataset.cat){
+        zone.querySelector(".placed").appendChild(card);
+        card.classList.remove("wrong");
+        card.classList.add("correct");
+        card.draggable=false;
+        card.querySelector(".speak").style.display="none";
+        placed++;
+        activeCard=null;
+        statusEl.className="status good";
+        statusEl.textContent="✅ Точно! „"+card.dataset.text+"“ е на вистинското место.";
+        update();
+      }else{
+        card.classList.remove("wrong");
+        void card.offsetWidth;
+        card.classList.add("wrong");
+        statusEl.className="status bad";
+        statusEl.textContent="↩️ Обиди се повторно. Размисли: каде најдобро припаѓа „"+card.dataset.text+"“?";
+      }
+    }
+
+    document.querySelectorAll(".zone").forEach(zone=>{
+      zone.addEventListener("dragover", e=>{e.preventDefault();zone.classList.add("over")});
+      zone.addEventListener("dragleave", ()=>zone.classList.remove("over"));
+      zone.addEventListener("drop", e=>{
+        e.preventDefault(); zone.classList.remove("over"); put(activeCard,zone);
+      });
+      zone.addEventListener("click", e=>{
+        if(e.target.closest(".card")) return;
+        put(activeCard,zone);
+      });
+    });
+
+    function reset(){
+      placed=0; activeCard=null;
+      document.querySelectorAll(".placed").forEach(x=>x.innerHTML="");
+      statusEl.className="status";
+      statusEl.textContent="";
+      renderBank();
+      update();
+    }
+
+    document.getElementById("resetBtn").addEventListener("click",reset);
+    document.getElementById("shuffleBtn").addEventListener("click",()=>{
+      const remaining=[...cardsEl.querySelectorAll(".card")];
+      shuffle(remaining).forEach(x=>cardsEl.appendChild(x));
+    });
+
+    renderBank();
+    update();
+  </script>
+</body>
+</html>
