@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Подреди ги броевите</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #eef7ff, #fff7dc);
+    color: #203040;
+  }
+  .wrap {
+    min-height: 100vh;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 42px;
+  }
+  .top {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .round {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid #9fb3c8;
+    background: white;
+    display: grid;
+    place-items: center;
+    font-weight: bold;
+    font-size: 20px;
+  }
+  .round.active { background: #5b7cfa; color: white; border-color: #5b7cfa; }
+  .round.done { background: #28a36a; color: white; border-color: #28a36a; }
+
+  .instruction {
+    text-align: center;
+    background: white;
+    border-radius: 18px;
+    padding: 14px;
+    font-size: 28px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  }
+
+  .numbers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .num {
+    background: white;
+    border: 4px solid #a7b9cb;
+    border-radius: 20px;
+    min-height: 105px;
+    display: grid;
+    place-items: center;
+    font-size: 44px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    box-shadow: 0 6px 14px rgba(0,0,0,.10);
+  }
+  .num.selected {
+    border-color: #5b7cfa;
+    background: #eef2ff;
+    transform: scale(1.03);
+  }
+  .num.correct {
+    border-color: #28a36a;
+    background: #effcf5;
+  }
+  .num.wrong {
+    border-color: #d84a4a;
+    background: #fff1f1;
+  }
+
+  .target-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 0 8px;
+  }
+
+  .slots {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+  .slot {
+    min-height: 115px;
+    border: 4px dashed #8ca4bb;
+    border-radius: 20px;
+    background: rgba(255,255,255,.65);
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    touch-action: manipulation;
+    position: relative;
+  }
+  .slot span {
+    opacity: .45;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+  button {
+    border: none;
+    border-radius: 14px;
+    padding: 14px 24px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #check { background:#5b7cfa; color:white; }
+  #reset { background:white; color:#203040; }
+  #next { background:#28a36a; color:white; display:none; }
+
+  .msg {
+    text-align: center;
+    min-height: 34px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  @media (max-width: 900px) {
+    h1 { font-size: 32px; }
+    .instruction { font-size: 22px; }
+    .num { font-size: 34px; min-height: 90px; }
+    .slot { min-height: 95px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔢 Подреди ги броевите</h1>
+
+  <div class="top" id="rounds"></div>
+
+  <div class="instruction" id="instruction"></div>
+
+  <div class="numbers" id="numbers"></div>
+
+  <div class="target-labels">
+    <span id="leftLabel"></span>
+    <span id="rightLabel"></span>
+  </div>
+
+  <div class="slots" id="slots"></div>
+
+  <div class="msg" id="msg">Кликни на број, па кликни на местото каде што сакаш да го ставиш.</div>
+
+  <div class="actions">
+    <button id="reset">↺ Повтори</button>
+    <button id="check">✓ Провери</button>
+    <button id="next">Следна низа →</button>
+  </div>
+</div>
+
+<script>
+const games = [
+  { dir:'asc', nums:[248, 513, 976, 1240, 1865] },
+  { dir:'desc', nums:[1740, 1035, 999, 642, 318] },
+  { dir:'asc', nums:[407, 758, 890, 1112, 1504] },
+  { dir:'desc', nums:[1980, 1260, 945, 630, 275] },
+  { dir:'asc', nums:[329, 701, 998, 1004, 1420] }
+];
+
+let gameIndex = 0;
+let selected = null;
+let completed = Array(games.length).fill(false);
+
+const numbersEl = document.getElementById('numbers');
+const slotsEl = document.getElementById('slots');
+const instructionEl = document.getElementById('instruction');
+const msgEl = document.getElementById('msg');
+const roundsEl = document.getElementById('rounds');
+const checkBtn = document.getElementById('check');
+const resetBtn = document.getElementById('reset');
+const nextBtn = document.getElementById('next');
+const leftLabel = document.getElementById('leftLabel');
+const rightLabel = document.getElementById('rightLabel');
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function drawRounds() {
+  roundsEl.innerHTML = '';
+  games.forEach((g, i) => {
+    const d = document.createElement('div');
+    d.className = 'round' + (i === gameIndex ? ' active' : '') + (completed[i] ? ' done' : '');
+    d.textContent = i + 1;
+    roundsEl.appendChild(d);
+  });
+}
+
+function makeNumberCard(n) {
+  const d = document.createElement('div');
+  d.className = 'num';
+  d.textContent = n;
+  d.dataset.value = n;
+
+  d.addEventListener('click', () => {
+    document.querySelectorAll('.num').forEach(x => x.classList.remove('selected'));
+    selected = d;
+    d.classList.add('selected');
+    msgEl.textContent = 'Сега кликни на празно место долу.';
+  });
+
+  return d;
+}
+
+function setupGame() {
+  selected = null;
+  drawRounds();
+  numbersEl.innerHTML = '';
+  slotsEl.innerHTML = '';
+  nextBtn.style.display = 'none';
+  checkBtn.style.display = 'inline-block';
+
+  const g = games[gameIndex];
+  instructionEl.textContent = g.dir === 'asc'
+    ? 'Нареди ги броевите од НАЈМАЛ кон НАЈГОЛЕМ.'
+    : 'Нареди ги броевите од НАЈГОЛЕМ кон НАЈМАЛ.';
+
+  leftLabel.textContent = g.dir === 'asc' ? 'НАЈМАЛ' : 'НАЈГОЛЕМ';
+  rightLabel.textContent = g.dir === 'asc' ? 'НАЈГОЛЕМ' : 'НАЈМАЛ';
+
+  shuffle(g.nums).forEach(n => numbersEl.appendChild(makeNumberCard(n)));
+
+  for (let i = 0; i < 5; i++) {
+    const s = document.createElement('div');
+    s.className = 'slot';
+    s.dataset.index = i;
+    s.innerHTML = '<span>' + (i+1) + '</span>';
+
+    s.addEventListener('click', () => {
+      if (!selected) {
+        msgEl.textContent = 'Прво кликни на број.';
+        return;
+      }
+
+      const existing = s.querySelector('.num');
+      if (existing) {
+        numbersEl.appendChild(existing);
+      }
+
+      s.innerHTML = '';
+      s.appendChild(selected);
+      selected.classList.remove('selected');
+      selected = null;
+      clearMarks();
+      msgEl.textContent = 'Продолжи со следниот број.';
+    });
+
+    slotsEl.appendChild(s);
+  }
+
+  msgEl.textContent = 'Кликни на број, па кликни на местото каде што сакаш да го ставиш.';
+}
+
+function clearMarks() {
+  document.querySelectorAll('.num').forEach(x => x.classList.remove('correct', 'wrong'));
+}
+
+checkBtn.addEventListener('click', () => {
+  const slots = [...slotsEl.children];
+  const cards = slots.map(s => s.querySelector('.num'));
+
+  if (cards.some(c => !c)) {
+    msgEl.textContent = 'Прво пополни ги сите 5 места.';
+    return;
+  }
+
+  const g = games[gameIndex];
+  const answer = [...g.nums].sort((a,b) => g.dir === 'asc' ? a-b : b-a);
+
+  let allGood = true;
+  cards.forEach((c, i) => {
+    if (+c.dataset.value === answer[i]) {
+      c.classList.add('correct');
+    } else {
+      c.classList.add('wrong');
+      allGood = false;
+    }
+  });
+
+  if (allGood) {
+    completed[gameIndex] = true;
+    drawRounds();
+    msgEl.textContent = '🎉 Точно! Одлично подредено!';
+    checkBtn.style.display = 'none';
+    nextBtn.style.display = 'inline-block';
+    nextBtn.textContent = gameIndex === games.length - 1 ? 'Играј од почеток ↺' : 'Следна низа →';
+  } else {
+    msgEl.textContent = 'Има грешка. Поправете ги црвените броеви.';
+  }
+});
+
+resetBtn.addEventListener('click', setupGame);
+
+nextBtn.addEventListener('click', () => {
+  if (gameIndex === games.length - 1) {
+    gameIndex = 0;
+    completed = Array(games.length).fill(false);
+  } else {
+    gameIndex++;
+  }
+  setupGame();
+});
+
+setupGame();
+</script>
+</body>
+</html>
